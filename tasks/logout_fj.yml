@@ -1,0 +1,3 @@
+---
+- name: fj auth logout
+  ansible.builtin.command: "fj auth logout {{ forgejo_host }}"

@@ -1,0 +1,22 @@
+---
+- name: Authenticate via fj
+  ansible.builtin.command: "fj --host {{ forgejo_host }}  auth add-key {{ forgejo_account }} {{ forgejo_cli_token }}"
+
+- name: Get Repos
+  ansible.builtin.command: "fj --host {{ forgejo_host }} user repos {{ forgejo_account }}"
+  register: forgejo_repos
+
+- name: Set Repos fact
+  ansible.builtin.set_fact:
+    fj_repos: |
+      {% set out = [] %}
+      {% for line in forgejo_repos.stdout_lines %}
+      {% if "- " in line %}
+      {% set _ = out.append(line | trim | split('/') | last) %}
+      {% endif %}
+      {% endfor %}
+      {{ out }}
+
+- name: List Repos
+  ansible.builtin.debug:
+    var: fj_repos

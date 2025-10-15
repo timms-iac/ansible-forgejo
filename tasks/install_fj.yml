@@ -1,0 +1,39 @@
+---
+- name: Install fj
+  ansible.builtin.apt:
+    update_cache: true
+    name: forgejo-cli
+    state: present
+  become: true
+  when: ansible_distribution_version is ansible.builtin.version("25.04", ">=")
+
+- name: Stat fj
+  ansible.builtin.stat:
+    path: "{{ ansible_user_dir }}/bin/fj"
+  register: fj
+
+- name: Install fj binary
+  when: ansible_distribution_version is ansible.builtin.version('25.04', '<=') and not fj.stat.exists
+  block:
+    - name: "Ensure {{ ansible_user_dir }}/bin exists"
+      ansible.builtin.file:
+        path: "{{ ansible_user_dir }}/bin"
+        state: directory
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
+        mode: 0750
+
+    - name: Download fj
+      ansible.builtin.get_url:
+        url: "{{ forgejo_cli_url }}"
+        dest: "{{ ansible_user_dir }}/bin/fj.gz"
+
+    - name: Unzip fj
+      ansible.builtin.command: "gunzip {{ ansible_user_dir }}/bin/fj.gz"
+
+    - name: Set permissions
+      ansible.builtin.file:
+        path: "{{ ansible_user_dir }}/bin/fj"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
+        mode: 0750

@@ -1,0 +1,5 @@
+---
+- name: Get Repos
+  ansible.builtin.command: 
+    cmd: "fj --host {{ forgejo_host }} repo create --remote forgejo --push  --ssh true {{ item.name }}"
+    chdir: "{{ playbook_dir }}/roles/{{ item.name | replace('ansible-', '') }}"

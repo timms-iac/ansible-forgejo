@@ -1,2 +1,16 @@
 ---
 # tasks file for roles/forgejo
+- name: Install fj cli
+  ansible.builtin.include_tasks: install_fj.yml
+
+- name: Initialize fj cli
+  ansible.builtin.include_tasks: init_fj.yml
+
+- name: Create repos
+  ansible.builtin.include_tasks: create_repo.yml
+  when: item.name not in fj_repos
+  loop: "{{ gh_repos }}"
+
+- name: Logout fj cli
+  ansible.builtin.include_tasks: logout_fj.yml
+
